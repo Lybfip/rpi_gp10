@@ -18,6 +18,7 @@ RPi.GPIOをインストールしてください。
 このリポジトリをForkして、~/catkin_ws/src/ の下にクローンしてください。
 
 ~$ cd ~/catkin_ws/src
+
 ~/catkin_ws/src$ git clone git@github.com:<ユーザー名>/rpi_gp10.git
 
 ビルドしてください。
@@ -39,7 +40,7 @@ sudo chmod 666 /dev/i2c-1
 
 ~$ roslaunch rpi-gp10 rpi-gp10.launch
 
-別のターミナルを起動し、
+別のターミナルを起動し、rostopic コマンドで動作を確認できます。
 IN0-7の値の表示：
 
 ~$ rostopic echo /rpi_gp10/input
