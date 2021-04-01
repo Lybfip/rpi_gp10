@@ -96,6 +96,7 @@ if __name__ == "__main__":
         i2c  = smbus.SMBus(1)   # RPi-GP10 は i2c-1 を使用
     except Exception as e:
         print "[{}] i2cで例外： {}".format(node_name, e)
+        sys.exit()
     
     # RPi-GP10初期化
     init_GP10()         
