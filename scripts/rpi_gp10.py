@@ -88,9 +88,11 @@ if __name__ == "__main__":
     rospy.init_node(node_name)
     node_name = rospy.get_name()
 
-    RATE = rospy.get_param(node_name + '/rate', default=10)                 # レートパラメータの読み込み
-    outputBuffer = rospy.get_param(node_name + '/initOut', default=0x00)    # 出力端子初期値パラメータの読み込み
-
+    # rosparam の読み込み
+    RATE = rospy.get_param(node_name + '/rate', default=10)
+    initialOutput = rospy.get_param(node_name + '/initOut', default=0)
+    initialStb = rospy.get_param(node_name + '/initStb', default=0)
+    
     # i2c の初期化
     try:
         i2c  = smbus.SMBus(1)   # RPi-GP10 は i2c-1 を使用
@@ -101,7 +103,8 @@ if __name__ == "__main__":
     # RPi-GP10初期化
     init_GP10()         
 
-    i2c.write_byte_data(i2c_adrs, 0x02, outputBuffer)   # 出力端子に初期値を出力
+    i2c.write_byte_data(i2c_adrs, 0x02, initialOutput)  # 出力端子に初期値を出力
+    GPIO.output(STB, initialStb)                        # STB端子に初期値を出力
 
     pub_inputSignal = rospy.Publisher(node_name + '/input', UInt8, queue_size=1)    # パブリッシャ：入力信号
     pub_trg = rospy.Publisher(node_name + '/trg', UInt8, queue_size=1)              # パブリッシャ：トリガ出力

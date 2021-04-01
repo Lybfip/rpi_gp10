@@ -1,4 +1,7 @@
 <launch>
-  <!-- I/O ノード -->
-  <node pkg="rpi_gp10" name="rpi_gp10" type="rpi_gp10.py" output="screen" />
+  <node pkg="rpi_gp10" name="rpi_gp10" type="rpi_gp10.py" output="screen" >
+    <param name="rate" value="10" />
+    <param name="initOut" value="0" />
+    <param name="initStb" value="0" />
+  </node>
 </launch>

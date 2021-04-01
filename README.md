@@ -57,4 +57,10 @@ OUT0 = L, OUT1-7 = H の出力
 
 ~$ rostopic pub -1 /rpi_gp10/output std_msgs/UInt8 1
 
+3. launch ファイルの param の説明
+
+  rate: 入力信号ポーリングのレート。単位は Hz
+  initOut: OUT 端子の初期値。0 で OUT 0-7 = H 出力
+  initStb: STB 端子の初期値。0 で STB = H 出力
+
 以上です。
