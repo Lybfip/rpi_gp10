@@ -1,0 +1,4 @@
+<launch>
+  <!-- I/O ノード -->
+  <node pkg="rpi_gp10" name="rpi_gp10" type="rpi_gp10.py" output="screen" />
+</launch>
