@@ -23,6 +23,7 @@ RPi.GPIOをインストールしてください。
 ビルドしてください。
 
 ~/catkin_ws/src$ cd ~/catkin_ws
+
 ~/catkin_ws$ catkin_make
 
 I2Cのデバイスファイルに書き込み権限がないとエラーになります。
