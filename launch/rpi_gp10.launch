@@ -3,5 +3,6 @@
     <param name="rate" value="10" />
     <param name="initOut" value="0" />
     <param name="initStb" value="0" />
+    <param name="polling" value="True" />
   </node>
 </launch>

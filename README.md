@@ -57,10 +57,22 @@ OUT0 = L, OUT1-7 = H の出力
 
 ~$ rostopic pub -1 /rpi_gp10/output std_msgs/UInt8 1
 
-3. launch ファイルの param の説明
+3. トピックの説明
 
-  rate: 入力信号ポーリングのレート。単位は Hz
+  ・パブリッシャ
+  /rpi/input : IN 端子の入力データ。H = 0, L = 1
+  /rpi/trg : TRG 端子の入力データ。H = 1, L = 0
+
+  ・サブスクライバ
+  /rpi/output : OUT 端子に出力。H = 0, L = 1
+  /rpi/stb : STB 端子に出力。H = 0, L = 1
+  /rpi/polling : True でレートごとに入力データをパブリッシュ。False で、入力データが変化したときだけパブリッシュ。
+
+4. launch ファイルの param の説明
+
+  rate: 入力信号監視のレート。単位は Hz
   initOut: OUT 端子の初期値。0 で OUT 0-7 = H 出力
   initStb: STB 端子の初期値。0 で STB = H 出力
+  polling: True でレートごとに /rpi_gp10/input と /rpi_gp10/trg をパブリッシュする。False でデータに変化があったときだけパブリッシュする。
 
 以上です。

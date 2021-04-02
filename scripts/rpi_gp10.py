@@ -13,6 +13,7 @@ from std_msgs.msg import UInt8
 STB  = 14               # STB出力 GPIO14(JP7:Default) / GPIO12(JP8)
 TRG  = 15               # TRG入力 GPIO15(JP5:Default) / GPIO13(JP6)
 trg_last = 1            # TRG 入力初期値
+in_last = 0             # IN 端子入力初期値
 
 pub_inputSignal = None  # 入力信号トピックパブリッシャ
 
@@ -49,21 +50,34 @@ def exit():
     GPIO.cleanup()
     sys.exit()
 
-# 入力端子のポーリング
-def pollingInputData():
+# 入力信号の監視
+def monitorTheInputSignal():
     global i2c
     global i2c_adrs
     global pub_inputSignal
     global pub_trg
     global trg_last
-    # 入力信号をパブリッシュ
-    pub_inputSignal.publish(i2c.read_byte_data(i2c_adrs, 0x01))
-    # トリガ入力が変化したら、トリガトピックをパブリッシュする。
-    # トリガ入力は H で 1、L で 0 となる。
-    trg_now = GPIO.input(TRG)
-    if (trg_now != trg_last):
-        pub_trg.publish(trg_now)
-        trg_last = trg_now
+    global in_last
+
+    # ポーリングフラグで処理を分岐する
+    if f_polling:
+        # IN 端子のデータをパブリッシュ
+        in_last = i2c.read_byte_data(i2c_adrs, 0x01)
+        pub_inputSignal.publish(in_last)
+        # TRG 端子のデータをパブリッシュ
+        trg_last = GPIO.input(TRG)
+        pub_trg.publish(trg_last)
+    else:
+        # IN 端子データが変化していたらパブリッシュする
+        in_now = i2c.read_byte_data(i2c_adrs, 0x01)
+        if in_now != in_last:
+            pub_inputSignal.publish(in_now)
+            in_last = in_now
+        # トリガ入力が変化したら、パブリッシュする。
+        trg_now = GPIO.input(TRG)
+        if trg_now != trg_last:
+            pub_trg.publish(trg_now)
+            trg_last = trg_now
 
 # 出力データトピックサブスクライバコールバック
 def cb_output(data):
@@ -77,6 +91,11 @@ def cb_stb(data):
     global STB
     # ストローブ端子にトピックデータを出力
     GPIO.output(STB, data.data)
+
+# ポーリングトピックサブスクライバコールバック関数
+def cb_polling(data):
+    global f_polling
+    f_polling = data.data
 
 # メイン関数 ----------------------------------------------------------------------------
 if __name__ == "__main__":
@@ -92,6 +111,7 @@ if __name__ == "__main__":
     RATE = rospy.get_param(node_name + '/rate', default=10)
     initialOutput = rospy.get_param(node_name + '/initOut', default=0)
     initialStb = rospy.get_param(node_name + '/initStb', default=0)
+    f_polling = rospy.get_param(node_name + '/polling', default=True)
     
     # i2c の初期化
     try:
@@ -110,11 +130,12 @@ if __name__ == "__main__":
     pub_trg = rospy.Publisher(node_name + '/trg', UInt8, queue_size=1)              # パブリッシャ：トリガ出力
     rospy.Subscriber(node_name + '/output', UInt8, cb_output)                       # サブククライバ：出力信号
     rospy.Subscriber(node_name + '/stb', UInt8, cb_stb)                             # サブスクライバ：ストローブ出力
+    rospy.Subscriber(node_name + '/polling', Bool, cb_polling)                      # サブスクライバ：ポーリング
 
     rate = rospy.Rate(RATE)
     while not rospy.is_shutdown():
         # 入力信号のポーリング
-        pollingInputData()
+        monitorTheInputSignal()
         rate.sleep()
 
     # 終了処理
